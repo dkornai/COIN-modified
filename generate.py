@@ -2,30 +2,30 @@ import numpy as np
 from scipy.stats import dirichlet
 
 
-def generate_TPM(input_dim, n_contexts_init, h_gamma_c, h_alpha_c, h_kappa_c):
+def generate_TPM(n_contexts_init, hyp_gamma, hyp_alpha, hyp_kappa):
     """
     Initialize a transition probability matrix given the hyperparam
     
     :param input_dim: Number of possible distinct cues (length of the cue vector)
     :param n_contexts_init: Number of initial contexts
-    :param h_gamma_c: Controls the decay rate of the global context transition probabilities
-    :param h_alpha_c: Concentration parameter for the local context transition probabilities
-    :param h_kappa_c: Context self-transition bias
+    :param hyp_gamma: Controls the decay rate of the global context transition probabilities
+    :param hyp_alpha: Concentration parameter for the local context transition probabilities
+    :param hyp_kappa: Context self-transition bias
 
     :return: Transition probability matrix 'Pi_c'
     """
 
-    # Beta_c: Global context probabilities
-    Beta_c = np.random.dirichlet([h_gamma_c] * n_contexts_init)
+    # theta_beta_c: Global context probabilities
+    theta_beta_c = np.random.dirichlet([hyp_gamma] * n_contexts_init)
     
     # TPM: Context transition probability matrix
     TPM = np.zeros((n_contexts_init, n_contexts_init))
     for i in range(n_contexts_init):
-        row_parameters = (h_alpha_c*Beta_c + h_kappa_c*(np.arange(n_contexts_init) == i)) / (h_alpha_c + h_kappa_c)
+        row_parameters = (hyp_alpha*theta_beta_c + hyp_kappa*(np.arange(n_contexts_init) == i)) / (hyp_alpha + hyp_kappa)
         TPM[i, :] = dirichlet.rvs(row_parameters)[0]
 
     print("Global context probabilities:")
-    print(Beta_c)
+    print(theta_beta_c)
     print("True context transition probability matrix:")
     print(TPM)
 
